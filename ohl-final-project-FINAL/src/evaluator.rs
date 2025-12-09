@@ -152,7 +152,21 @@ impl Evaluator {
         &mut self, _mtree_while: &MTree, _rcc_frame: Rc<RefCell<CFrame>>)
         -> (DValue, Control)
     {
-        todo!()
+        self.log.debug("evaluate_while()");
+
+        self.log.indent_inc();
+
+        let condition = _mtree_while.children.get(0).unwrap().deref();
+        let value_condition = self.evaluate_expr(condition, _rcc_frame.clone());
+
+        let ret_block = if let DValue::BOOL(b) = value_condition {
+            let mtree_branch = _mtree_while.children.get(1).unwrap().deref();
+            self.evaluate_block(mtree_branch, Some(_rcc_frame.clone()))
+        } else {
+            panic!("Condition must result in value of type Bool!");
+        };
+        self.log.indent_dec();
+        ret_block
     }
 
 

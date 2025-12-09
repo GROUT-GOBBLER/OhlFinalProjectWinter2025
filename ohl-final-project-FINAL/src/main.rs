@@ -217,4 +217,125 @@ fn main() {
     let mut evaluator = Evaluator::new();
     evaluator.evaluate(rc_tree_analyzed.deref());
 
+    /*
+        --------------------------------------------------------
+        EXAMPLE PROGRAM - 2.
+        --------------------------------------------------------
+
+        func main() {
+            let n = 0;
+
+            while n < 10 {
+                n = n + 1;
+            }
+
+            write n;
+        }
+     */
+
+    let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
+
+    let mtree_main_block = MTree {
+        token: Token::from( TCode::BLOCK),
+        children: vec![
+            Rc::new( MTree {
+                token: Token::from(TCode::ASSIGN),
+                children: vec![
+                    Rc::new(MTree::new(Token::id("n")) ),
+                    Rc::new( MTree::new(Token::from(TCode::VAL(DValue::I64(0))))),
+                ]
+            }),
+
+            Rc::new(MTree {
+                token: Token::from(TCode::WHILE),
+                children: vec! [
+                    Rc::new(MTree {
+                        token: Token::from(TCode::LT),
+                        children: vec! [
+                            Rc::new(MTree::new( Token::id("n") )),
+                            Rc::new(MTree::new(
+                                Token::from( TCode::VAL(DValue::I64(10)))
+                            ))
+                        ]
+                    }),
+                    Rc::new(MTree {
+                        token: Token::from(TCode::BLOCK),
+                        children: vec! [
+                            Rc::new(MTree {
+                                token: Token::from(TCode::ASSIGN),
+                                children: vec! [
+                                    Rc::new(MTree::new(Token::id("n"))),
+                                    Rc::new(MTree {
+                                        token: Token::from(TCode::ADD),
+                                        children: vec! [
+                                            Rc::new(MTree::new( Token::id("n") )),
+                                            Rc::new(MTree::new(
+                                                Token::from( TCode::VAL(DValue::I64(1)))
+                                            ))
+                                        ]
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+
+            Rc::new( MTree {
+                token: Token::from(TCode::WRITE),
+                children: vec![
+                    Rc::new(MTree::new(Token::id("n")) )
+                ]
+            }),
+        ]
+    };
+
+    let rc_mtree_main = Rc::new(MTree {
+        token: Token::from(TCode::FUNC),
+        children: vec![
+            Rc::new(MTree::new(Token::id("main"))),
+            Rc::new(MTree {
+                token: Token::from( TCode::PARAMS),
+                children: vec![] // no parameters
+            }),
+            Rc::new(mtree_main_block)
+        ]
+    });
+
+    let rc_mtree_global = Rc::new(MTree {
+        token: Token::from( TCode::BLOCK),
+        children: vec![
+            // rc_mtree_fac.clone(),
+            rc_mtree_main.clone(),
+            Rc::new( MTree {
+                token: Token::from( TCode::CALL),
+                children: vec![
+                    Rc::new(MTree::new(Token::id("main")) ),
+                ]
+            })
+        ]
+    });
+
+    println!("----------------------------------------------------------------");
+    println!("\nMTree (Parsed) 'global':\n");
+    rc_mtree_global.print();
+
+    // --------------------------------------------------------
+    // analyze tree
+    // --------------------------------------------------------
+    println!("----------------------------------------------------------------");
+    let analyzer = Analyzer::new();
+    let rc_tree_analyzed = analyzer.analyze_global(rc_mtree_global.clone());
+    println!("\nMTree (Analyzed) 'global':\n");
+    rc_tree_analyzed.print();
+
+
+    // --------------------------------------------------------
+    // evaluate tree
+    // --------------------------------------------------------
+
+    println!("----------------------------------------------------------------");
+    println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
+    let mut evaluator = Evaluator::new();
+    evaluator.evaluate(rc_tree_analyzed.deref());
 }
