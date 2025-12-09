@@ -6,72 +6,61 @@ use std::fmt;
 use std::mem::discriminant;
 use std::rc::Rc;
 use crate::frame_analyze::{AFrame, CellLoc};
-use crate::typ::{ATyp};
 use crate::value::DValue;
 
 #[derive(Clone)]
 pub enum TCode {
-
     // general
     EOI,
     ERROR,
 
     // id, typ, value atoms
     ID(String),
-    TYP(ATyp),
     VAL(DValue),
 
     // assignment operator
-    OP_ASSIGN,
+    ASSIGN,
 
     // logical operators
-    OP_OR,
-    OP_AND,
-    OP_NOT,
+    NOT,
+    AND,
+    OR,
 
     // relational operators
-    OP_LT,          // less than
-    OP_GT,          // greater than
-    OP_NOT_LT,      // not less than == greater than or equal
-    OP_NOT_GT,      // not greater than == less than or equal
-    OP_EQUAL,       // equal
-    OP_NOT_EQUAL,   // not equal
+    LT,          // less than
+    GT,          // greater than
+    EQ,       // equal
+    NOT_EQ,   // not equal
 
     // arithmetic operators
-    OP_ADD,
-    OP_SUB,
-    OP_MUL,
-    OP_DIV,
-    OP_POW,
+    ADD,
+    SUB,
+    MULT,
+    DIV,
 
     // nesting
     PAREN_L,
     PAREN_R,
-    BRACKET_L,
-    BRACKET_R,
     BRACE_L,
     BRACE_R,
 
     // separators
-    POINT,
     COMMA,
-    COLON,
     SEMICOLON,
-    ARROW_R,
 
     // keywords
-    // KW_FUNC,
-    KW_LET,
-    KW_IF,
-    KW_ELSE,
-    KW_WHILE,
-    KW_RETURN,
-    KW_READ,
-    KW_WRITE,
+    FUNC,
+    LET,
+    IF,
+    ELSE,
+    WHILE,
+    RETURN,
+    READ,
+    WRITE,
 
     // meta tokens
     BLOCK,
-    FUNC,
+    // FUNC,
     PARAMS,
     CALL,
 
@@ -86,40 +75,31 @@ impl fmt::Debug for TCode {
             TCode::ERROR => write!(f, "ERROR"),
             TCode::ID(name) => write!(f, "ID(\"{}\")", name),
             TCode::VAL(value) => write!(f, "VAL({:?})", value),
-            TCode::TYP(_) => write!(f, "TYP"),
-            TCode::OP_ASSIGN => write!(f, ":="),
-            TCode::OP_OR => write!(f, "OR"),
-            TCode::OP_AND => write!(f, "AND"),
-            TCode::OP_NOT => write!(f, "NOT"),
-            TCode::OP_LT => write!(f, "<"),
-            TCode::OP_GT => write!(f, ">"),
-            TCode::OP_NOT_LT => write!(f, ">="),
-            TCode::OP_NOT_GT => write!(f, "<="),
-            TCode::OP_EQUAL => write!(f, "=="),
-            TCode::OP_NOT_EQUAL => write!(f, "!="),
-            TCode::OP_ADD => write!(f, "+"),
-            TCode::OP_SUB => write!(f, "-"),
-            TCode::OP_MUL => write!(f, "*"),
-            TCode::OP_DIV => write!(f, "/"),
-            TCode::OP_POW => write!(f, "^"),
+            TCode::ASSIGN => write!(f, ":="),
+            TCode::OR => write!(f, "OR"),
+            TCode::AND => write!(f, "AND"),
+            TCode::NOT => write!(f, "NOT"),
+            TCode::LT => write!(f, "<"),
+            TCode::GT => write!(f, ">"),
+            TCode::EQ => write!(f, "=="),
+            TCode::NOT_EQ => write!(f, "!="),
+            TCode::ADD => write!(f, "+"),
+            TCode::SUB => write!(f, "-"),
+            TCode::MULT => write!(f, "*"),
+            TCode::DIV => write!(f, "/"),
             TCode::PAREN_L => write!(f, "("),
             TCode::PAREN_R => write!(f, ")"),
-            TCode::BRACKET_L => write!(f, "["),
-            TCode::BRACKET_R => write!(f, "]"),
             TCode::BRACE_L => write!(f, "{{"),
             TCode::BRACE_R => write!(f, "}}"),
-            TCode::POINT => write!(f, "."),
             TCode::COMMA => write!(f, ","),
-            TCode::COLON => write!(f, ":"),
             TCode::SEMICOLON => write!(f, ";"),
-            TCode::ARROW_R => write!(f, "->"),
-            TCode::KW_LET => write!(f, "LET"),
-            TCode::KW_IF => write!(f, "ID"),
-            TCode::KW_ELSE => write!(f, "ELSE"),
-            TCode::KW_WHILE => write!(f, "WHILE"),
-            TCode::KW_RETURN => write!(f, "RET"),
-            TCode::KW_READ => write!(f, "READ"),
-            TCode::KW_WRITE => write!(f, "WRITE"),
+            TCode::LET => write!(f, "LET"),
+            TCode::IF => write!(f, "ID"),
+            TCode::ELSE => write!(f, "ELSE"),
+            TCode::WHILE => write!(f, "WHILE"),
+            TCode::RETURN => write!(f, "RET"),
+            TCode::READ => write!(f, "READ"),
+            TCode::WRITE => write!(f, "WRITE"),
             TCode::PARAMS => write!(f, "PARAMS"),
             TCode::BLOCK => write!(f, "BLOCK"),
             TCode::A_BLOCK(rcc_frame) => {

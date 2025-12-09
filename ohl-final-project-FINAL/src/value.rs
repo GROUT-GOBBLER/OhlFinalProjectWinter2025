@@ -8,32 +8,29 @@ impl TCode {
 
     pub fn isLogicalOp(&self) -> bool {
         match self {
-            TCode::OP_OR => { true }
-            TCode::OP_AND => { true }
-            TCode::OP_NOT => { true }
+            TCode::OR => { true }
+            TCode::AND => { true }
+            TCode::NOT => { true }
             _ => { false }
         }
     }
 
     pub fn isRelationalOp(&self) -> bool {
         match self {
-            TCode::OP_LT => { true }
-            TCode::OP_GT => { true }
-            TCode::OP_NOT_LT => { true }
-            TCode::OP_NOT_GT => { true }
-            TCode::OP_EQUAL => { true }
-            TCode::OP_NOT_EQUAL => { true }
+            TCode::LT => { true }
+            TCode::GT => { true }
+            TCode::EQ => { true }
+            TCode::NOT_EQ => { true }
             _ => { false }
         }
     }
 
     pub fn isArithmeticOp(&self) -> bool {
         match self {
-            TCode::OP_ADD => { true }
-            TCode::OP_SUB => { true }
-            TCode::OP_MUL => { true }
-            TCode::OP_DIV => { true }
-            TCode::OP_POW => { true }
+            TCode::ADD => { true }
+            TCode::SUB => { true }
+            TCode::MULT => { true }
+            TCode::DIV => { true }
             _ => { false }
         }
     }
@@ -163,21 +160,21 @@ impl DValue {
             DValue::TOK => { panic!("Operator {:?} is undefined on DValue::TOK!", code) }
             DValue::BOOL(b) => {
                 match code {
-                    TCode::OP_NOT => { DValue::BOOL(! *b) }
+                    TCode::NOT => { DValue::BOOL(! *b) }
                     _ => { panic!("Operator {:?} is undefined on DValue::Bool!", code) }
                 }
             }
             DValue::CHAR(_) => { panic!("Operator {:?} is undefined on DValue::CHAR!", code) }
             DValue::I64(i) => {
                 match code {
-                    TCode::OP_SUB => { DValue::I64(0 - *i) }
+                    TCode::SUB => { DValue::I64(0 - *i) }
                     _ => { panic!("Operator {:?} is undefined on DValue::I64!", code) }
                 }
             }
             DValue::F64(f) => {
                 match code {
-                    TCode::OP_SUB => { DValue::F64(0.0 - *f) }
-                    TCode::OP_DIV => { DValue::F64(1.0 / *f) }
+                    TCode::SUB => { DValue::F64(0.0 - *f) }
+                    TCode::DIV => { DValue::F64(1.0 / *f) }
                     _ => { panic!("Operator {:?} is undefined on DValue::F64!", code) }
                 }
             }
@@ -239,25 +236,25 @@ impl DValue {
         let num_pair = self.commonDNumPair(&code, value_rhs);
 
         match code {
-            TCode::OP_ADD => {
+            TCode::ADD => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::I64(l + r) }
                     DNumPair::F64(l, r) => { DValue::F64(l + r) }
                 }
             }
-            TCode::OP_SUB =>  {
+            TCode::SUB =>  {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::I64(l - r) }
                     DNumPair::F64(l, r) => { DValue::F64(l - r) }
                 }
             }
-            TCode::OP_MUL => {
+            TCode::MULT => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::I64(l * r) }
                     DNumPair::F64(l, r) => { DValue::F64(l * r) }
                 }
             }
-            TCode::OP_DIV => {
+            TCode::DIV => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::I64(l / r) }
                     DNumPair::F64(l, r) => { DValue::F64(l / r) }
@@ -273,37 +270,25 @@ impl DValue {
         let num_pair = self.commonDNumPair(&code, value_rhs);
 
         match code {
-            TCode::OP_LT => {
+            TCode::LT => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::BOOL(l < r) }
                     DNumPair::F64(l, r) => { DValue::BOOL(l < r) }
                 }
             }
-            TCode::OP_GT => {
+            TCode::GT => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::BOOL(l > r) }
                     DNumPair::F64(l, r) => { DValue::BOOL(l > r) }
                 }
             }
-            TCode::OP_NOT_LT => {
-                match num_pair {
-                    DNumPair::I64(l, r) => { DValue::BOOL(l >= r) }
-                    DNumPair::F64(l, r) => { DValue::BOOL(l >= r) }
-                }
-            }
-            TCode::OP_NOT_GT => {
-                match num_pair {
-                    DNumPair::I64(l, r) => { DValue::BOOL(l <= r) }
-                    DNumPair::F64(l, r) => { DValue::BOOL(l <= r) }
-                }
-            }
-            TCode::OP_EQUAL => {
+            TCode::EQ => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::BOOL(l == r) }
                     DNumPair::F64(l, r) => { DValue::BOOL(l == r) }
                 }
             }
-            TCode::OP_NOT_EQUAL => {
+            TCode::NOT_EQ => {
                 match num_pair {
                     DNumPair::I64(l, r) => { DValue::BOOL(l != r) }
                     DNumPair::F64(l, r) => { DValue::BOOL(l != r) }
@@ -326,8 +311,8 @@ impl DValue {
         };
 
         match code {
-            TCode::OP_OR => { DValue::BOOL(b_lhs || b_rhs) }
-            TCode::OP_AND => { DValue::BOOL(b_lhs && b_rhs) }
+            TCode::OR => { DValue::BOOL(b_lhs || b_rhs) }
+            TCode::AND => { DValue::BOOL(b_lhs && b_rhs) }
             _ => { panic!("{:?} is not logical operator!", code) }
         }
     }
