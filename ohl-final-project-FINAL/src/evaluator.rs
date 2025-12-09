@@ -89,19 +89,19 @@ impl Evaluator {
                          -> (DValue, Control)
     {
         match &mtree_stmt.token.code {
-            TCode::KW_RETURN => {
+            TCode::RETURN => {
                 self.evaluate_return(mtree_stmt, rcc_frame)
             }
-            TCode::KW_IF => {
+            TCode::IF => {
                 self.evaluate_if(mtree_stmt, rcc_frame)
             }
-            TCode::KW_WHILE => {
+            TCode::WHILE => {
                 self.evaluate_while(mtree_stmt, rcc_frame)
             }
-            TCode::KW_READ => {
+            TCode::READ => {
                 (self.evaluate_read(mtree_stmt, rcc_frame), Control::NEXT)
             }
-            TCode::KW_WRITE => {
+            TCode::WRITE => {
                 (self.evaluate_write(mtree_stmt, rcc_frame), Control::NEXT)
             }
             TCode::FUNC => {
@@ -224,7 +224,7 @@ impl Evaluator {
                 panic!();
             }
 
-        } else if let TCode::OP_ASSIGN = &code {
+        } else if let TCode::ASSIGN = &code {
 
             // get storage location (LHS)
             let mtree_left= mtree_expr.children.get(0).unwrap().deref();

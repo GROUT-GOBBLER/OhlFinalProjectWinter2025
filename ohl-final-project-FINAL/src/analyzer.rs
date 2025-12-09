@@ -57,13 +57,13 @@ impl Analyzer {
 
         match tree_stmt.token.code {
             TCode::FUNC => { self.analyze_func(tree_stmt, rcc_frame) }
-            TCode::KW_IF => { self.analyze_if(tree_stmt, rcc_frame) }
-            TCode::KW_WHILE => { self.analyze_while(tree_stmt, rcc_frame) }
-            TCode::KW_RETURN => { self.analyze_return(tree_stmt, rcc_frame) }
-            TCode::OP_ASSIGN => { self.analyze_assign(tree_stmt, rcc_frame) }
+            TCode::IF => { self.analyze_if(tree_stmt, rcc_frame) }
+            TCode::WHILE => { self.analyze_while(tree_stmt, rcc_frame) }
+            TCode::RETURN => { self.analyze_return(tree_stmt, rcc_frame) }
+            TCode::ASSIGN => { self.analyze_assign(tree_stmt, rcc_frame) }
             TCode::A_BLOCK(_) => { self.analyze_block(tree_stmt, rcc_frame) }
-            TCode::KW_READ => { self.analyze_read(tree_stmt, rcc_frame) }
-            TCode::KW_WRITE => { self.analyze_write(tree_stmt, rcc_frame) }
+            TCode::READ => { self.analyze_read(tree_stmt, rcc_frame) }
+            TCode::WRITE => { self.analyze_write(tree_stmt, rcc_frame) }
             TCode::CALL => { self.analyze_call(tree_stmt, rcc_frame) }
             _ => {
                 panic!("Code {:?}", tree_stmt.token.code);
@@ -135,7 +135,7 @@ impl Analyzer {
         let rc_false = self.analyze_block(mtree_else, frame.clone());
 
         let token_if = Token {
-            code: TCode::KW_IF,
+            code: TCode::IF,
             loc: mtree_if.token.loc.clone(),
         };
         let mut mtree_if_ = MTree::new( token_if);
