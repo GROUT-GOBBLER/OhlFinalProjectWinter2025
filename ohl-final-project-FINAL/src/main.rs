@@ -28,7 +28,7 @@ fn main() {
     // func fac(n)
     // [
     //     write n;
-    //     if n <= 1 [
+    //     if n < 2 [
     //         return 1;
     //     ] else [
     //         return n * fac(n-1);
@@ -48,7 +48,7 @@ fn main() {
     let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
 
     let mtree_fac_recursive = MTree {
-        token: Token::from( TCode::OP_MUL),
+        token: Token::from( TCode::MULT),
         children: vec![
             Rc::new(MTree::new(Token::id("n")) ),
             Rc::new( MTree {
@@ -56,7 +56,7 @@ fn main() {
                 children: vec![
                     Rc::new(MTree::new(Token::id("fac")) ),
                     Rc::new( MTree {
-                        token: Token::from( TCode::OP_SUB),
+                        token: Token::from( TCode::SUB),
                         children: vec![
                             Rc::new(MTree::new(Token::id("n")) ),
                             Rc::new(MTree::new(
@@ -73,20 +73,20 @@ fn main() {
         token: Token::from( TCode::BLOCK),
         children: vec![
             Rc::new( MTree {
-                token: Token::from(TCode::KW_WRITE),
+                token: Token::from(TCode::WRITE),
                 children: vec![
                     Rc::new(MTree::new(Token::id("n")) )
                 ]
             }),
             Rc::new( MTree {
-                token: Token::from( TCode::KW_IF),
+                token: Token::from( TCode::IF),
                 children: vec![
                     Rc::new(MTree {
-                        token: Token::from(TCode::OP_NOT_GT),
+                        token: Token::from(TCode::LT),
                         children: vec![
                             Rc::new(MTree::new( Token::id("n") )),
                             Rc::new(MTree::new(
-                                Token::from( TCode::VAL(DValue::I64(1)))
+                                Token::from( TCode::VAL(DValue::I64(2)))
                             ))
                         ]
                     }),
@@ -94,7 +94,7 @@ fn main() {
                         token: Token::from(TCode::BLOCK),
                         children: vec![
                             Rc::new(MTree {
-                                token: Token::from(TCode::KW_RETURN),
+                                token: Token::from(TCode::RETURN),
                                 children: vec![ Rc::new(mtree_fac_base) ]
                             }),
                         ]
@@ -103,7 +103,7 @@ fn main() {
                         token: Token::from(TCode::BLOCK),
                         children: vec![
                             Rc::new(MTree {
-                                token: Token::from(TCode::KW_RETURN),
+                                token: Token::from(TCode::RETURN),
                                 children: vec![ Rc::new(mtree_fac_recursive) ]
                             }),
                         ]
@@ -139,7 +139,7 @@ fn main() {
         token: Token::from( TCode::BLOCK),
         children: vec![
             Rc::new( MTree {
-                token: Token::from(TCode::OP_ASSIGN),
+                token: Token::from(TCode::ASSIGN),
                 children: vec![
                     Rc::new(MTree::new(Token::id("n")) ),
                     Rc::new( MTree {
@@ -154,7 +154,7 @@ fn main() {
                 ]
             }),
             Rc::new( MTree {
-                token: Token::from(TCode::KW_WRITE),
+                token: Token::from(TCode::WRITE),
                 children: vec![
                     Rc::new(MTree::new(Token::id("n")) )
                 ]
