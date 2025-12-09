@@ -149,22 +149,40 @@ impl Evaluator {
     }
 
     pub fn evaluate_while(
-        &mut self, _mtree_while: &MTree, _rcc_frame: Rc<RefCell<CFrame>>)
+        &mut self, _mtree_while: &MTree, rcc_frame: Rc<RefCell<CFrame>>)
         -> (DValue, Control)
     {
         self.log.debug("evaluate_while()");
-
         self.log.indent_inc();
 
         let condition = _mtree_while.children.get(0).unwrap().deref();
-        let value_condition = self.evaluate_expr(condition, _rcc_frame.clone());
+        let mut value_condition = self.evaluate_expr(condition, rcc_frame.clone());
+        let mtree_branch = _mtree_while.children.get(1).unwrap().deref();
 
-        let ret_block = if let DValue::BOOL(b) = value_condition {
-            let mtree_branch = _mtree_while.children.get(1).unwrap().deref();
-            self.evaluate_block(mtree_branch, Some(_rcc_frame.clone()))
-        } else {
-            panic!("Condition must result in value of type Bool!");
-        };
+        fn match_value_condition(va_co: DValue) -> bool {
+            match va_co {
+                DValue::BOOL(true) => { true }
+                DValue::BOOL(false) => { false }
+                _ => {
+                    panic!("conditional statement returned non-boolean value in evaluate_while() in evaluator.rs")
+                }
+            }
+        }
+
+        let mut loop_condition: bool = match_value_condition(value_condition.clone());
+        let mut ret_block: (DValue, Control) = (DValue::BOOL(false), Control::_CONTINUE);
+
+        while loop_condition {
+            ret_block = if let DValue::BOOL(b) = value_condition {
+                self.evaluate_block(mtree_branch, Some(rcc_frame.clone()))
+            } else {
+                panic!("Condition must result in value of type Bool!");
+            };
+
+            value_condition = self.evaluate_expr(condition, rcc_frame.clone());
+            loop_condition = match_value_condition(value_condition.clone());
+        }
+
         self.log.indent_dec();
         ret_block
     }

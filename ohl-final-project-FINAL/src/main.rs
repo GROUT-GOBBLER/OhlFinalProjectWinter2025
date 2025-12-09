@@ -275,6 +275,12 @@ fn main() {
                                         ]
                                     })
                                 ]
+                            }),
+                            Rc::new(MTree{
+                                token: Token::from(TCode::WRITE),
+                                children: vec! [
+                                    Rc::new(MTree::new(Token::id("n"))),
+                                ]
                             })
                         ]
                     })
