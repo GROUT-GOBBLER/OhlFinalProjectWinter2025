@@ -1,17 +1,15 @@
 #![allow(non_snake_case)]
 
 use std::{env, fs};
-use std::fs::read_to_string;
 use std::ops::Deref;
 use std::rc::Rc;
 use crate::analyzer::Analyzer;
 use crate::evaluator::Evaluator;
-use crate::hw_assignment_3::Lexer;
 use crate::mtree::MTree;
 use crate::token::{Token, TCode};
 use crate::value::{DValue};
 use crate::hw_assignment_3::Lexer;
-use crate::hw_assignment_4::Parser;
+// use crate::hw_assignment_4::Parser;
 
 mod token;
 mod mtree;
@@ -56,33 +54,6 @@ fn print_help_for(command: &str) {
 }
 
 fn ohl_analyzer_evaluator_sample_function() {
-
-    // --------------------------------------------------------
-    // --------------------------------------------------------
-    //
-    // func fac(n)
-    // [
-    //     write n;
-    //     if n < 2 [
-    //         return 1;
-    //     ] else [
-    //         return n * fac(n - 1);
-    //     ]
-    // ]
-    //
-    // func main()
-    // [
-    //     n = fac(3);
-    //     write n;
-    // ]
-
-    // --------------------------------------------------------
-    // build tree of func "fac"
-    // --------------------------------------------------------
-
-    PrintFromFile();
-    return;
-
     let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
 
     let mtree_fac_recursive = MTree {
@@ -273,8 +244,6 @@ fn yarrick_analyzer_evaluator_sample_function() {
         }
      */
 
-    let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
-
     let mtree_main_block = MTree {
         token: Token::from( TCode::BLOCK),
         children: vec![
@@ -402,13 +371,11 @@ fn main() {
                 let cmd = &args[1];
                 if !valid_commands.contains(&cmd) {
                     println!("INVALID HELP COMMAND");
-                }
-                else {
+                } else {
                     println!("Help Info For {}", cmd);
                     print_help_for(cmd);
                 }
-            }
-            else {
+            } else {
                 println!("All Command Help Info:");
                 for string in valid_commands {
                     print_help_for(string.as_str());
@@ -428,8 +395,7 @@ fn main() {
                 for (i, line) in contents.lines().enumerate() {
                     println!("{}: {}", i + 1, line);
                 }
-            }
-            else {
+            } else {
                 println!("{}", contents);
             }
         }
@@ -437,8 +403,7 @@ fn main() {
             let print_all_string = String::from("All commands:\n\t help \n\t print \n\t list [commands] \n\t list tokens \n\t example \n\t tokenize \n\t parse \n\t execute \n\t example");
             if args.len() < 2 {
                 println!("{}", print_all_string);
-            }
-            else {
+            } else {
                 let cmd = &args[1];
                 match cmd.as_str() {
                     "commands" => {
@@ -473,25 +438,25 @@ fn main() {
             let mut lexer = Lexer::new();
 
             lexer.set_input(file_path.clone());
-            lexer.print_tokens();
+            RunLexerOnFile(&mut lexer);
         }
         "parse" => {
-            if args.len() < 2 {
-                println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
-                return;
-            }
-            let file_path = &args[1];
-            println!("Running parser to tokenize & parse a file {}:", file_path);
-            // create recursive descent parser
-            let mut lexer = Lexer::new();
-            lexer.set_input(file_path.clone()); // Using the testingparser.txt file for this one.
-            let mut parser = Parser::new(lexer);
-            //parser.lexer.advance();
-            // start recursive descent parsing
-            let tree = parser.analyze();
-
-            println!("\nMTree:");
-            tree.print();
+            // if args.len() < 2 {
+            //     println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
+            //     return;
+            // }
+            // let file_path = &args[1];
+            // println!("Running parser to tokenize & parse a file {}:", file_path);
+            // // create recursive descent parser
+            // let mut lexer = Lexer::new();
+            // lexer.set_input(file_path.clone()); // Using the testingparser.txt file for this one.
+            // let mut parser = Parser::new(lexer);
+            // //parser.lexer.advance();
+            // // start recursive descent parsing
+            // let tree = parser.analyze();
+            //
+            // println!("\nMTree:");
+            // tree.print();
         }
         "execute" => {
             println!("Execute given file.");
@@ -506,12 +471,10 @@ fn main() {
             if run_type.eq(&String::from("OHL")) {
                 println!("Running ohl example to analyze and evaluate a hard-coded tree.");
                 ohl_analyzer_evaluator_sample_function();
-            }
-            else if run_type.eq(&String::from("YARRICK")) {
+            } else if run_type.eq(&String::from("YARRICK")) {
                 println!("Running yarrick example to analyze and evaluate a hard-coded tree.");
                 yarrick_analyzer_evaluator_sample_function();
-            }
-            else {
+            } else {
                 println!("Error: 'example' requires either \"OHL\" or \"YARRICK\" as a second flag.");
                 return;
             }
@@ -519,11 +482,10 @@ fn main() {
         _ => {
             println!("Unknown command: {}.", args[0]);
         }
-      
-fn PrintFromFile() {
-    let mut lex = Lexer::new();
-    lex.set_input(String::from("example.txt"));
+    }
+}
 
+fn RunLexerOnFile(lex: &mut Lexer) {
     lex.advance();
     lex.print_token();
 
