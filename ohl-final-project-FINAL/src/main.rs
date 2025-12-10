@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 
+use std::env::Args;
 use std::fs::read_to_string;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -9,6 +10,7 @@ use crate::hw_assignment_3::Lexer;
 use crate::mtree::MTree;
 use crate::token::{Token, TCode};
 use crate::value::{DValue};
+use std::io::{self, Write};
 
 mod token;
 mod mtree;
@@ -45,6 +47,56 @@ fn main() {
     // --------------------------------------------------------
     // build tree of func "fac"
     // --------------------------------------------------------
+
+    println!("Type a command (help, print, list, tokenize, parse or exit):");
+    // TO DO: print, parse
+
+    loop {
+        print!("> ");
+        io::stdout().flush().unwrap();
+        let mut input = String::new();
+
+        if io::stdin().read_line(&mut input).is_err() {
+            println!("Failed to read input.");
+            continue;
+        }
+
+        let collected: Vec<&str> = input.trim().split_whitespace().collect();
+        if collected.is_empty() {
+            continue;
+        }
+
+        let cmd = collected[0].to_lowercase();
+        let args = &collected[1..];
+
+        match cmd.as_str() {
+            "exit" => break,
+            "help" => {
+                if !args.is_empty() {
+                    print_help_for(args[0]);
+                }
+                else {list_command("commands");}
+            },
+            "list" => {
+                if !args.is_empty() {
+                    list_command(args[0]);
+                }
+                else {list_command("commands");}
+            },
+            "tokenize" => {
+                if args.is_empty() {println!("File must be given")}
+                let file_path = args[0];
+                println!("Running tokenization of file {}: ", file_path);
+
+                let mut lexer = Lexer::new();
+                lexer.set_input(file_path.clone().parse().unwrap());
+                RunLexerOnFile(&mut lexer);
+            },
+            _ => println!("Unknown command: {}", cmd)
+        }
+
+
+    }
 
     PrintFromFile();
     return;
@@ -221,6 +273,70 @@ fn main() {
     let mut evaluator = Evaluator::new();
     evaluator.evaluate(rc_tree_analyzed.deref());
 
+}
+
+fn print_help_for(command: &str) {
+    match command {
+        "help" => {
+            println!("help [command]: \n- prints help info for commands\n");
+        }
+        "print" => {
+            println!("print <file> [--numbered]: \n- prints out the contents of a file to the output. If numbered is true, then it will list every line with a number before it\n");
+        }
+        "list" => {
+            println!("list commands OR list tokens: \n- prints the list of all commands with or without the second field being entered as [commands]\n- if the 2nd field is [tokens], will print out all tokens in the token enum\n");
+        }
+        "tokenize" => {
+            println!("tokenize <file>: \n- tokenizes the input from a file and then prints out the token form of the function\n");
+        }
+        "parse" => {
+            println!("parse <file>: \n- tokenizes & parses the input from a file and then prints out resulting parse tree\n");
+        }
+        "execute" => {
+            println!("execute <file>: \n-tokenizes & parses & analyzes & executes the input from the file and prints out resulting value.\n");
+        }
+        "example" => {
+            println!("example <\"OHL\" | \"YARRICK\">: \n-prints one of two examples that utilize the analyzer and executor on a predefined tree.");
+        }
+        _ => {
+            println!("Unknown command: {}.\n", command);
+        }
+    }
+}
+
+fn list_command(command: &str) {
+    let print_all_string = String::from("All commands:\n\t help \n\t print \n\t list [commands] \n\t list tokens \n\t example \n\t tokenize \n\t parse \n\t execute \n\t example");
+    match command {
+        "commands" => {
+            println!("{}", print_all_string);
+        }
+        "tokens" => {
+            println!("====Tokens====\n
+                    General: EOI, ERROR\n
+                    Id and Value atoms: ID(String), VAL(DValue)\n
+                    Assignment operator: ASSIGN\n
+                    Logical operators: NOT, AND, OR\n
+                    Relational operators: LT, GT, EQ, NOT_EQ\n
+                    Arithmetic operators: ADD, SUB, MULT, DIV\n
+                    Nesting: PAREN_L, PAREN_R, BRACE_L, BRACE_R,\n
+                    Separators: COMMA, SEMICOLON\n
+                    Keywords: FUNC, LET, IF, ELSE, WHILE, RETURN, READ, WRITE,\n
+                    Meta-tokens: BLOCK, PARAMS, CALL\n");
+        }
+        _ => {
+            println!("{}", print_all_string);
+        }
+    }
+}
+
+fn RunLexerOnFile(lex: &mut Lexer) {
+    lex.advance();
+    lex.print_token();
+
+    while lex.token.clone().unwrap() != TCode::EOI {
+        lex.advance();
+        lex.print_token();
+    }
 }
 
 fn PrintFromFile() {
