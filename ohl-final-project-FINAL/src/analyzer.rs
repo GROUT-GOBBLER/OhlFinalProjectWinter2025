@@ -147,7 +147,25 @@ impl Analyzer {
     }
 
     pub fn analyze_while(&self, _mtree_while: &MTree, _frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
-        todo!()
+        // <while> -> WHILE ID <relational operator> <point of comparison> <block>
+
+        let mtree_cond = _mtree_while.children.get(0).unwrap().deref();
+        let mtree_while_body = _mtree_while.children.get(1).unwrap().deref();
+
+        let rc_cond = self.analyze_expr(mtree_cond, _frame.clone());
+        let rc_while_body = self.analyze_block(mtree_while_body, _frame.clone());
+
+        let token_while = Token {
+            code: TCode::WHILE,
+            loc: _mtree_while.token.loc.clone(),
+        };
+
+        let mut mtree_while = MTree::new(token_while);
+
+        mtree_while.children.push(rc_cond);
+        mtree_while.children.push(rc_while_body);
+
+        Rc::new(mtree_while)
     }
 
     pub fn analyze_return(&self, mtree_return: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
