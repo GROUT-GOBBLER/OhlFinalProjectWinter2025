@@ -79,20 +79,20 @@ impl fmt::Debug for TCode {
             TCode::OR => write!(f, "OR"),
             TCode::AND => write!(f, "AND"),
             TCode::NOT => write!(f, "NOT"),
-            TCode::LT => write!(f, "<"),
-            TCode::GT => write!(f, ">"),
-            TCode::EQ => write!(f, "=="),
-            TCode::NOT_EQ => write!(f, "!="),
-            TCode::ADD => write!(f, "+"),
-            TCode::SUB => write!(f, "-"),
-            TCode::MULT => write!(f, "*"),
-            TCode::DIV => write!(f, "/"),
-            TCode::PAREN_L => write!(f, "("),
-            TCode::PAREN_R => write!(f, ")"),
-            TCode::BRACE_L => write!(f, "{{"),
-            TCode::BRACE_R => write!(f, "}}"),
-            TCode::COMMA => write!(f, ","),
-            TCode::SEMICOLON => write!(f, ";"),
+            TCode::LT => write!(f, "LT"),
+            TCode::GT => write!(f, "GT"),
+            TCode::EQ => write!(f, "EQ"),
+            TCode::NOT_EQ => write!(f, "NOT_EQ"),
+            TCode::ADD => write!(f, "ADD"),
+            TCode::SUB => write!(f, "SUB"),
+            TCode::MULT => write!(f, "MULT"),
+            TCode::DIV => write!(f, "DIV"),
+            TCode::PAREN_L => write!(f, "PAREN_L"),
+            TCode::PAREN_R => write!(f, "PAREN_R"),
+            TCode::BRACE_L => write!(f, "BRACE_L"),
+            TCode::BRACE_R => write!(f, "BRACE_R"),
+            TCode::COMMA => write!(f, "COMMA"),
+            TCode::SEMICOLON => write!(f, "SEMICOLON"),
             TCode::LET => write!(f, "LET"),
             TCode::IF => write!(f, "ID"),
             TCode::ELSE => write!(f, "ELSE"),
@@ -186,4 +186,6 @@ impl Token {
             loc: TLoc::empty()
         }
     }
+
+
 }

@@ -1,10 +1,12 @@
 #![allow(non_snake_case)]
 
 use std::{env, fs};
+use std::fs::read_to_string;
 use std::ops::Deref;
 use std::rc::Rc;
 use crate::analyzer::Analyzer;
 use crate::evaluator::Evaluator;
+use crate::hw_assignment_3::Lexer;
 use crate::mtree::MTree;
 use crate::token::{Token, TCode};
 use crate::value::{DValue};
@@ -20,7 +22,6 @@ mod value;
 mod frame_analyze;
 mod evaluator;
 mod frame_call;
-
 mod hw_assignment_3;
 mod hw_assignment_4;
 
@@ -57,7 +58,6 @@ fn print_help_for(command: &str) {
 fn ohl_analyzer_evaluator_sample_function() {
 
     // --------------------------------------------------------
-    // Example Program
     // --------------------------------------------------------
     //
     // func fac(n)
@@ -66,7 +66,7 @@ fn ohl_analyzer_evaluator_sample_function() {
     //     if n < 2 [
     //         return 1;
     //     ] else [
-    //         return n * fac(n-1);
+    //         return n * fac(n - 1);
     //     ]
     // ]
     //
@@ -79,6 +79,9 @@ fn ohl_analyzer_evaluator_sample_function() {
     // --------------------------------------------------------
     // build tree of func "fac"
     // --------------------------------------------------------
+
+    PrintFromFile();
+    return;
 
     let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
 
@@ -516,5 +519,16 @@ fn main() {
         _ => {
             println!("Unknown command: {}.", args[0]);
         }
+      
+fn PrintFromFile() {
+    let mut lex = Lexer::new();
+    lex.set_input(String::from("example.txt"));
+
+    lex.advance();
+    lex.print_token();
+
+    while lex.token.clone().unwrap() != TCode::EOI {
+        lex.advance();
+        lex.print_token();
     }
 }
