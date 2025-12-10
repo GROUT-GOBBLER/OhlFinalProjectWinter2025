@@ -4,6 +4,7 @@
 use std::fs;
 use std::mem::discriminant;
 use crate::token::{TCode};
+use crate::value::DValue;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LexerState {
@@ -84,12 +85,11 @@ impl Lexer {
             // let current_char: char = self.next_char().unwrap();
             match self.state {
                 LexerState::Start => {
-                    /*if vec!['\n'].contains(&current_char) {
+                    if vec!['\n'].contains(&current_char) {
                         self.input_pos += 1;
-                        let token = TCode::EOI;
-                        self.token = Some(token.clone());
-                        return Some(token);
-                    }*/
+                        println!();
+                        continue;
+                    }
                     if current_char.is_whitespace() {
                         self.input_pos += 1;
                         continue;
@@ -123,8 +123,8 @@ impl Lexer {
                         match current_char {
                             '(' => token = TCode::PAREN_L,
                             ')' => token = TCode::PAREN_R,
-                            ']' => token = TCode::BRACE_L,
-                            '[' => token = TCode::BRACE_R,
+                            ']' => token = TCode::BRACE_R,
+                            '[' => token = TCode::BRACE_L,
                             ',' => token = TCode::COMMA,
                             //':' => token = TCode::COLON,
                             ';' => token = TCode::SEMICOLON,
@@ -208,6 +208,8 @@ impl Lexer {
                         continue;
                     } else {
                         let token = match self.buffer_string.as_str() {
+                            "true" => TCode::VAL(DValue::BOOL(true)),
+                            "false" => TCode::VAL(DValue::BOOL(false)),
                             "func" => TCode::FUNC,
                             "let" => TCode::LET,
                             "if" => TCode::IF,
@@ -238,38 +240,12 @@ impl Lexer {
                         let val = self.buffer_string.parse::<i32>().expect("Invalid value for integer");
                         self.buffer_string.clear();
                         self.state = LexerState::Start;
-                        let token = TCode::LIT_INT32(val);
+                        let token = TCode::VAL(DValue::I64(val as i64));
                         self.token = Some(token.clone());
                         return Some(token);
                     }
                 }
-                LexerState::NumberFloat => {
-                    if current_char.is_digit(10) {
-                        self.buffer_string.push(current_char);
-                        self.input_pos += 1;
-                        continue;
-                    } else {
-                        let val = self.buffer_string.parse::<f32>().expect("Invalid value for float");
-                        self.buffer_string.clear();
-                        self.state = LexerState::Start;
-                        let token = TCode::LIT_FLT32(val);
-                        self.token = Some(token.clone());
-                        return Some(token);
-                    }
-                }
-                LexerState::CharLit => {
-                    self.input_pos += 1;
-                    if self.next_char() != Some('\'') {
-                        panic!("Char literal {} not closed", '\'');
-                    }
-                    self.input_pos += 1;
-                    self.state = LexerState::Start;
-                    let token = TCode::LIT_CHAR(current_char);
-                    self.token = Some(token.clone());
-                    return Some(token);
-
-                }
-                LexerState::StringLit => {
+                /*LexerState::StringLit => {
                     if current_char == '"' {
                         let buffer_clone = self.buffer_string.clone();
                         self.buffer_string.clear();
@@ -283,7 +259,7 @@ impl Lexer {
                         self.input_pos += 1;
                         continue;
                     }
-                }
+                }*/
                 _ => {}
             }
         }
@@ -296,12 +272,12 @@ impl Lexer {
         self.token.clone().unwrap_or(TCode::EOI)
     }
 
-    fn print_token(&mut self) {
+    pub fn print_token(&mut self) {
         let token = self.token.clone().unwrap();
 
         match token {
             TCode::EOI => {
-                print!("EOI\n");
+                print!("\nEOI");
             },
 
             _ => {
