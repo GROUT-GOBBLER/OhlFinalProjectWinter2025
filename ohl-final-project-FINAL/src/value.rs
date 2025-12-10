@@ -98,7 +98,7 @@ impl DValue {
             DValue::CHAR(c) => { c.to_string() }
             DValue::I64(i) => { i.to_string() }
             DValue::F64(f) => { f.to_string() }
-            DValue::FUNC(_) => { todo!() }
+            DValue::FUNC(_) => { todo!() }  // what to do here?
             DValue::_LIST(_) => { todo!() }
             DValue::_MAP(_) => { todo!() }
         }
