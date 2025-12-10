@@ -1,9 +1,11 @@
 #![allow(non_snake_case)]
 
+use std::fs::read_to_string;
 use std::ops::Deref;
 use std::rc::Rc;
 use crate::analyzer::Analyzer;
 use crate::evaluator::Evaluator;
+use crate::hw_assignment_3::Lexer;
 use crate::mtree::MTree;
 use crate::token::{Token, TCode};
 use crate::value::{DValue};
@@ -17,12 +19,11 @@ mod value;
 mod frame_analyze;
 mod evaluator;
 mod frame_call;
-
+mod hw_assignment_3;
 
 fn main() {
 
     // --------------------------------------------------------
-    // Example Program
     // --------------------------------------------------------
     //
     // func fac(n)
@@ -31,7 +32,7 @@ fn main() {
     //     if n < 2 [
     //         return 1;
     //     ] else [
-    //         return n * fac(n-1);
+    //         return n * fac(n - 1);
     //     ]
     // ]
     //
@@ -44,6 +45,9 @@ fn main() {
     // --------------------------------------------------------
     // build tree of func "fac"
     // --------------------------------------------------------
+
+    PrintFromFile();
+    return;
 
     let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
 
@@ -344,4 +348,17 @@ fn main() {
     println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
     let mut evaluator = Evaluator::new();
     evaluator.evaluate(rc_tree_analyzed.deref());
+}
+
+fn PrintFromFile() {
+    let mut lex = Lexer::new();
+    lex.set_input(String::from("example.txt"));
+
+    lex.advance();
+    lex.print_token();
+
+    while lex.token.clone().unwrap() != TCode::EOI {
+        lex.advance();
+        lex.print_token();
+    }
 }
