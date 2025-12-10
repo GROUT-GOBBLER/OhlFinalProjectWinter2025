@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 
 use std::fs;
-use std::mem::discriminant;
 use crate::token::{TCode};
 use crate::value::DValue;
 

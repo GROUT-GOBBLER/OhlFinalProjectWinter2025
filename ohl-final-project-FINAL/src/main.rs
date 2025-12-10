@@ -9,7 +9,7 @@ use crate::mtree::MTree;
 use crate::token::{Token, TCode};
 use crate::value::{DValue};
 use crate::hw_assignment_3::Lexer;
-// use crate::hw_assignment_4::Parser;
+use crate::hw_assignment_4::Parser;
 
 mod token;
 mod mtree;
@@ -441,25 +441,57 @@ fn main() {
             RunLexerOnFile(&mut lexer);
         }
         "parse" => {
-            // if args.len() < 2 {
-            //     println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
-            //     return;
-            // }
-            // let file_path = &args[1];
-            // println!("Running parser to tokenize & parse a file {}:", file_path);
-            // // create recursive descent parser
-            // let mut lexer = Lexer::new();
-            // lexer.set_input(file_path.clone()); // Using the testingparser.txt file for this one.
-            // let mut parser = Parser::new(lexer);
-            // //parser.lexer.advance();
-            // // start recursive descent parsing
+            if args.len() < 2 {
+                println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
+                return;
+            }
+            let file_path = &args[1];
+            println!("Running parser to tokenize & parse a file {}:", file_path);
+
+            // create recursive descent parser
+            let mut lexer = Lexer::new();
+            lexer.set_input(file_path.clone());
+            let mut parser = Parser::new(lexer);
+            parser.lexer.advance();
+
+            // start recursive descent parsing
             // let tree = parser.analyze();
-            //
-            // println!("\nMTree:");
-            // tree.print();
+
+            println!("\nMTree:");
+            tree.print();
         }
         "execute" => {
             println!("Execute given file.");
+
+            if args.len() < 2 {
+                println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
+                return;
+            }
+            let file_path = &args[1];
+            println!("Running parser to tokenize & parse a file {}:", file_path);
+
+            // create recursive descent parser
+            let mut lexer = Lexer::new();
+            lexer.set_input(file_path.clone()); // Using the testingparser.txt file for this one.
+            let mut parser = Parser::new(lexer);
+            parser.lexer.advance();
+
+            // start recursive descent parsing
+            let tree = parser.analyze();
+
+            println!("\nMTree:");
+            tree.print();
+
+            // --------------------------------------------------------
+            // analyze tree
+            // --------------------------------------------------------
+            println!("----------------------------------------------------------------");
+            let analyzer = Analyzer::new();
+            let rc_tree_analyzed = analyzer.analyze_global(Rc::new(tree.clone()));
+            println!("\nMTree (Analyzed) 'global':\n");
+            rc_tree_analyzed.print();
+
+            
         }
         "example" => {
             if args.len() < 2 {
