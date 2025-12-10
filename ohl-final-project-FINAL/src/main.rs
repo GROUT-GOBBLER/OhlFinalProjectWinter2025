@@ -455,7 +455,7 @@ fn main() {
             parser.lexer.advance();
 
             // start recursive descent parsing
-            // let tree = parser.analyze();
+            let tree = parser.analyze();
 
             println!("\nMTree:");
             tree.print();
@@ -491,7 +491,13 @@ fn main() {
             println!("\nMTree (Analyzed) 'global':\n");
             rc_tree_analyzed.print();
 
-            
+            // --------------------------------------------------------
+            // evaluate tree
+            // --------------------------------------------------------
+            println!("----------------------------------------------------------------");
+            println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
+            let mut evaluator = Evaluator::new();
+            evaluator.evaluate(rc_tree_analyzed.deref());
         }
         "example" => {
             if args.len() < 2 {

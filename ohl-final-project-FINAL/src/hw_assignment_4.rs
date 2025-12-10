@@ -110,7 +110,7 @@ impl Parser {  // simple recursive descent parser
         self.expect(TCode::FUNC);
         let id = self.curr();
         self.expect(TCode::ID(String::new()));
-        tree._push(MTree::new(id));
+        tree._push(MTree::new(Token::from(id)));
         let params = self.parse_parameter_list();
         tree._push(params);
         let block = self.parse_block_nest();
@@ -147,7 +147,7 @@ impl Parser {  // simple recursive descent parser
         let mut tree = MTree::new(TCode::META_PARAM);
         let id = self.curr();
         self.expect(TCode::ID(String::new()));
-        tree._push(MTree::new(id));
+        tree._push(MTree::new(Token::from(id)));
         self.indent_decrement();
         tree
     }
@@ -196,7 +196,7 @@ impl Parser {  // simple recursive descent parser
         tree
     }
 
-    // EBNF: let_stmt = LET ID (COLON type) ASSIGN expr SEMICOLON
+    // EBNF: let_stmt = LET ID ASSIGN expr SEMICOLON
     pub fn parse_let_stmt(&mut self) -> MTree {
         self.indent_print("parse_let()");
         self.indent_increment();
@@ -204,8 +204,8 @@ impl Parser {  // simple recursive descent parser
         self.expect(TCode::LET);
         let id = self.curr();
         self.expect(TCode::ID(String::new()));
-        tree._push(MTree::new(id));
-        let typ;
+        tree._push(MTree::new(Token::from(id)));
+        let typ;                            // REMOVE TYPING.
         if self.accept(TCode::COLON) {
             typ = self.parse_type();
         } else {
@@ -227,11 +227,11 @@ impl Parser {  // simple recursive descent parser
         let mut tree = MTree::new(TCode::META_ASSIGN);
         let id = self.curr();
         self.expect(TCode::ID(String::new()));
-        tree._push(MTree::new(id));
+        tree._push(MTree::new(Token::from(id)));
         let op = self.curr();
         if matches!(op, TCode::ASSIGN | TCode::ADD | TCode::SUB | TCode::MULT | TCode::DIV) {
             self.advance();
-            tree.TCode = op;  // Use the specific op as root TCode
+            tree.token.code = op;  // Use the specific op as root TCode
         } else {
             panic!("Expected assignment operator, found {:?}", op);
         }
@@ -247,7 +247,7 @@ impl Parser {  // simple recursive descent parser
         self.indent_print("parse_print()");
         self.indent_increment();
         let mut tree = MTree::new(TCode::META_PRINT);
-        self.expect(TCode::PRINT);
+        self.expect(TCode::WRITE);
         loop {
             let expr = self.parse_expr();
             tree._push(expr);
@@ -328,7 +328,7 @@ impl Parser {  // simple recursive descent parser
     fn parse_or_expr(&mut self) -> MTree {
         let mut left = self.parse_and_expr();
         while self.accept(TCode::OR) {
-            let mut bin_tree = MTree::new(TCode::OR);
+            let mut bin_tree = MTree::new(Token::from(TCode::OR));
             bin_tree._push(left);
             let right = self.parse_and_expr();
             bin_tree._push(right);
@@ -341,7 +341,7 @@ impl Parser {  // simple recursive descent parser
     fn parse_and_expr(&mut self) -> MTree {
         let mut left = self.parse_rel_expr();
         while self.accept(TCode::AND) {
-            let mut bin_tree = MTree::new(TCode::AND);
+            let mut bin_tree = MTree::new(Token::from(TCode::AND));
             bin_tree._push(left);
             let right = self.parse_rel_expr();
             bin_tree._push(right);
@@ -356,7 +356,7 @@ impl Parser {  // simple recursive descent parser
         while matches!(self.curr(), TCode::EQ | TCode::LT | TCode::GT | TCode::NOT_EQ) {
             let op = self.curr();
             self.advance();
-            let mut bin_tree = MTree::new(op);
+            let mut bin_tree = MTree::new(Token::from(op));
             bin_tree._push(left);
             let right = self.parse_add_expr();
             bin_tree._push(right);
@@ -371,7 +371,7 @@ impl Parser {  // simple recursive descent parser
         while matches!(self.curr(), TCode::ADD | TCode::SUB) {
             let op = self.curr();
             self.advance();
-            let mut bin_tree = MTree::new(op);
+            let mut bin_tree = MTree::new(Token::from(op));
             bin_tree._push(left);
             let right = self.parse_mul_expr();
             bin_tree._push(right);
@@ -386,7 +386,7 @@ impl Parser {  // simple recursive descent parser
         while matches!(self.curr(), TCode::MULT | TCode::DIV) {
             let op = self.curr();
             self.advance();
-            let mut bin_tree = MTree::new(op);
+            let mut bin_tree = MTree::new(Token::from(op));
             bin_tree._push(left);
             let right = self.parse_unary_expr();
             bin_tree._push(right);
@@ -401,7 +401,7 @@ impl Parser {  // simple recursive descent parser
         if matches!(self.curr(), TCode::NOT | TCode::SUB) {
             let op = self.curr();
             self.advance();
-            let mut tree = MTree::new(op);
+            let mut tree = MTree::new(Token::from(op));
             tree._push(self.parse_unary_expr());
             tree
         } else {
@@ -417,12 +417,12 @@ impl Parser {  // simple recursive descent parser
         let mut tree;
         match TCode {
             TCode::ID(ref s) => {
-                let id_str = s.clone();
+                let id_str = s.clone(); // ID STR.
                 self.advance();
                 if self.peek(TCode::PAREN_L) {
                     // Function call
                     tree = MTree::new(TCode::META_CALL);
-                    tree._push(MTree::new(TCode::ID(id_str)));
+                    tree._push(MTree::new(Token::from(TCode::ID(id_str))));
                     self.expect(TCode::PAREN_L);
                     if !self.peek(TCode::PAREN_R) {
                         loop {
@@ -435,12 +435,12 @@ impl Parser {  // simple recursive descent parser
                     }
                     self.expect(TCode::PAREN_R);
                 } else {
-                    tree = MTree::new(TCode::ID(id_str));
+                    tree = MTree::new(Token::from(TCode::ID(id_str)))
                 }
             }
             TCode::VAL(DValue::I64(_)) | TCode::VAL(DValue::BOOL(true)) | TCode::VAL(DValue::BOOL(false)) => {
                 self.advance();
-                tree = MTree::new(TCode);
+                tree = MTree::new(Token::from(TCode));
             }
             TCode::PAREN_L => {
                 self.advance();
