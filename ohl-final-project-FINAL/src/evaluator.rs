@@ -225,15 +225,16 @@ impl Evaluator {
             self.log.debug(format!("VAL {:?}", value).as_str() );
             value
 
-        } else if let TCode::VAL(val) = code {
-
+        }
+        else if let TCode::VAL(val) = code {
             val.clone()
-
-        } else if let TCode::CALL = code {
+        }
+        else if let TCode::CALL = code {
 
             self.evaluate_call(mtree_expr, rcc_frame.clone())
 
-        } else if code.isLRAOp() {
+        }
+        else if code.isLRAOp() {
 
             if mtree_expr.children.len() == 1 {
 
@@ -256,8 +257,8 @@ impl Evaluator {
                 panic!();
             }
 
-        } else if let TCode::ASSIGN = &code {
-
+        }
+        else if let TCode::ASSIGN = &code {
             // get storage location (LHS)
             let mtree_left= mtree_expr.children.get(0).unwrap().deref();
             let loc_left = match  & mtree_left.token.code {
@@ -274,7 +275,7 @@ impl Evaluator {
             rcc_frame.borrow_mut().value_store(&loc_left, value_right.clone());
             value_right
 
-        } else {
+        }else {
             panic!("Code: {:?}", code)
         };
 
