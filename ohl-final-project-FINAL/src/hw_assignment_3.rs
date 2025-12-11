@@ -195,7 +195,8 @@ impl Lexer {
                     if current_char == '-' {
                         let next = self.peek_char();
                         let token = TCode::SUB;
-                        self.input_pos += if next.is_some() { 2 } else { 1 };
+                        // self.input_pos += if next.is_some() { 2 } else { 1 };
+                        self.input_pos += 1;
                         self.token = Some(token.clone());
                         return Some(token);
                     }

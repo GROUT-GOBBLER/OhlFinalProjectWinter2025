@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use std::env::args;
+use std::fs::read_to_string;
 use std::ops::Deref;
 use std::rc::Rc;
 use crate::analyzer::Analyzer;
@@ -24,32 +26,7 @@ mod hw_assignment_3;
 mod hw_assignment_4;
 
 fn main() {
-
-    // --------------------------------------------------------
-    // --------------------------------------------------------
-    //
-    // func fac(n)
-    // [
-    //     write n;
-    //     if n < 2 [
-    //         return 1;
-    //     ] else [
-    //         return n * fac(n - 1);
-    //     ]
-    // ]
-    //
-    // func main()
-    // [
-    //     n = fac(3);
-    //     write n;
-    // ]
-
-    // --------------------------------------------------------
-    // build tree of func "fac"
-    // --------------------------------------------------------
-
-    println!("Type a command (help, print, list, tokenize, parse or exit):");
-    // TO DO: print, parse
+    println!("Type a command (help, print, list, tokenize, parse, execute or exit):");
 
     loop {
         print!("> ");
@@ -74,17 +51,32 @@ fn main() {
             "help" => {
                 if !args.is_empty() {
                     print_help_for(args[0]);
-                }
-                else {list_command("commands");}
+                } else { list_command("commands"); }
             },
             "list" => {
                 if !args.is_empty() {
                     list_command(args[0]);
-                }
-                else {list_command("commands");}
+                } else { list_command("commands"); }
             },
+            "print" => {
+                if args.len() == 0 {
+                    println!("File must be given")
+                }
+                else if args.len() == 1 {
+                    let file_path = args[0];
+                    print(String::from(file_path), String::from(""));
+                }
+                else if args.len() == 2 {
+                    let file_path = args[0];
+                    let flag = args[1];
+                    print(String::from(file_path), String::from(flag));
+                }
+                else {
+                    println!("Too many arguments!");
+                }
+            }
             "tokenize" => {
-                if args.is_empty() {println!("File must be given")}
+                if args.is_empty() { println!("File must be given") }
                 let file_path = args[0];
                 println!("Running tokenization of file {}: ", file_path);
 
@@ -92,16 +84,105 @@ fn main() {
                 lexer.set_input(file_path.clone().parse().unwrap());
                 RunLexerOnFile(&mut lexer);
             },
+            "parse" => {
+                if args.is_empty() { println!("File must be given") }
+                let file_path = &args[0];
+                println!("Running parser to tokenize & parse a file {}:", file_path);
+
+                // create recursive descent parser
+                let mut lexer = Lexer::new();
+                lexer.set_input(String::from(file_path.clone()));
+                let mut parser = Parser::new(lexer);
+
+                // start recursive descent parsing
+                let tree = parser.analyze();
+
+                println!("\nMTree:");
+                tree.print();
+            },
+            "execute" => {
+                println!("Execute given file.");
+
+                if args.is_empty() { println!("File must be given") }
+                let file_path = &args[0];
+                println!("Running parser to tokenize & parse a file {}:", file_path);
+
+                // create recursive descent parser
+                let mut lexer = Lexer::new();
+                lexer.set_input(String::from(file_path.clone()));
+                let mut parser = Parser::new(lexer);
+
+                // start recursive descent parsing
+                let tree = parser.analyze();
+
+                println!("\nMTree:");
+                tree.print();
+
+                // --------------------------------------------------------
+                // analyze tree
+                // --------------------------------------------------------
+                println!("----------------------------------------------------------------");
+                let analyzer = Analyzer::new();
+                let rc_tree_analyzed = analyzer.analyze_global(Rc::new(tree.clone()));
+                println!("\nMTree (Analyzed) 'global':\n");
+                rc_tree_analyzed.print();
+
+                // --------------------------------------------------------
+                // evaluate tree
+                // --------------------------------------------------------
+                println!("----------------------------------------------------------------");
+                println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
+                let mut evaluator = Evaluator::new();
+                evaluator.evaluate(rc_tree_analyzed.deref());
+            }
+            "example" => {
+                if args.is_empty() { println!("Example choice not given.") }
+                let example_choice = args[0];
+
+                match example_choice {
+                    "OHL" => {
+                        ohl_analyzer_evaluator_sample_function()
+                    }
+                    "YARRICK" => {
+                        yarrick_analyzer_evaluator_sample_function()
+                    }
+                    _ => {
+                        println!("Invalid example choice given.")
+                    }
+                }
+            }
             _ => println!("Unknown command: {}", cmd)
         }
-
-
     }
 
-    PrintFromFile();
     return;
+}
 
 fn ohl_analyzer_evaluator_sample_function() {
+    // --------------------------------------------------------
+    // Example Program
+    // --------------------------------------------------------
+    //
+    // func fac(n)
+    // [
+    //     write n;
+    //     if n <= 2 [
+    //         return 1;
+    //     ] else [
+    //         return n * fac(n-1);
+    //     ]
+    // ]
+    //
+    // func main()
+    // [
+    //     n = fac(3);
+    //     write n;
+    // ]
+
+    // --------------------------------------------------------
+    // build tree of func "fac"
+    // --------------------------------------------------------
+
     let mtree_fac_base = MTree::new( Token::from( TCode::VAL(DValue::I64(1))));
 
     let mtree_fac_recursive = MTree {
@@ -418,63 +499,10 @@ fn print_help_for(command: &str) {
             println!("tokenize <file>: \n- tokenizes the input from a file and then prints out the token form of the function\n");
         }
         "parse" => {
-            if args.len() < 2 {
-                println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
-                return;
-            }
-            let file_path = &args[1];
-            println!("Running parser to tokenize & parse a file {}:", file_path);
-
-            // create recursive descent parser
-            let mut lexer = Lexer::new();
-            lexer.set_input(file_path.clone());
-            let mut parser = Parser::new(lexer);
-            parser.lexer.advance();
-
-            // start recursive descent parsing
-            let tree = parser.analyze();
-
-            println!("\nMTree:");
-            tree.print();
+            println!("parse <file>: \n- tokenizes the input from the file and then parses the tokens.\n- Prints out the tree form of the function.\n");
         }
         "execute" => {
-            println!("Execute given file.");
-
-            if args.len() < 2 {
-                println!("Error: 'parse' requires a file path.\n Usage: parse <file name>");
-                return;
-            }
-            let file_path = &args[1];
-            println!("Running parser to tokenize & parse a file {}:", file_path);
-
-            // create recursive descent parser
-            let mut lexer = Lexer::new();
-            lexer.set_input(file_path.clone()); // Using the testingparser.txt file for this one.
-            let mut parser = Parser::new(lexer);
-            parser.lexer.advance();
-
-            // start recursive descent parsing
-            let tree = parser.analyze();
-
-            println!("\nMTree:");
-            tree.print();
-
-            // --------------------------------------------------------
-            // analyze tree
-            // --------------------------------------------------------
-            println!("----------------------------------------------------------------");
-            let analyzer = Analyzer::new();
-            let rc_tree_analyzed = analyzer.analyze_global(Rc::new(tree.clone()));
-            println!("\nMTree (Analyzed) 'global':\n");
-            rc_tree_analyzed.print();
-
-            // --------------------------------------------------------
-            // evaluate tree
-            // --------------------------------------------------------
-            println!("----------------------------------------------------------------");
-            println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
-            let mut evaluator = Evaluator::new();
-            evaluator.evaluate(rc_tree_analyzed.deref());
+            println!("execute <file>: \n- The whole shebang.\n- tokenizes, parses, analyzes, and then executes the given file.\n- Prints output for each step.");
         }
         "example" => {
             println!("example <\"OHL\" | \"YARRICK\">: \n-prints one of two examples that utilize the analyzer and executor on a predefined tree.");
@@ -517,5 +545,21 @@ fn RunLexerOnFile(lex: &mut Lexer) {
     while lex.token.clone().unwrap() != TCode::EOI {
         lex.advance();
         lex.print_token();
+    }
+}
+
+fn print(file_name: String, flag : String) {
+    if flag == "--numbered" {
+        let mut count : i16 = 1;
+
+        for line in read_to_string(file_name).unwrap().lines() {
+            println!("{} {}", count, line.to_string());
+            count += 1;
+        }
+    }
+    else {
+        for line in read_to_string(file_name).unwrap().lines() {
+            println!("{}", line.to_string());
+        }
     }
 }

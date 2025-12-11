@@ -4,12 +4,12 @@ func fac(n)
     if n < 2 [
         return 1;
     ] else [
-        return n * fac(n - 1);
+        return n;
     ]
 ]
 
 func main()
 [
-    n = fac(3);
+    n = 10;
     write n;
 ]

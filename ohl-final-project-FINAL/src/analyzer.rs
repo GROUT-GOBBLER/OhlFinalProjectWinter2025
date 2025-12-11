@@ -37,7 +37,7 @@ impl Analyzer {
     }
 
     pub fn analyze_block_framed(&self, mtree_block: &MTree, rcc_frame_block: Rc<RefCell<AFrame>>) -> Rc<MTree> {
-
+        mtree_block.print();
         // collect symbols
         let token_block_ = Token::from(TCode::A_BLOCK(rcc_frame_block.clone()));
         let mut tree_block_ = MTree::new(token_block_);
@@ -54,7 +54,6 @@ impl Analyzer {
     }
 
     pub fn analyze_stmt(&self, tree_stmt: &MTree, rcc_frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
-
         match tree_stmt.token.code {
             TCode::FUNC => { self.analyze_func(tree_stmt, rcc_frame) }
             TCode::IF => { self.analyze_if(tree_stmt, rcc_frame) }
@@ -65,6 +64,7 @@ impl Analyzer {
             TCode::READ => { self.analyze_read(tree_stmt, rcc_frame) }
             TCode::WRITE => { self.analyze_write(tree_stmt, rcc_frame) }
             TCode::CALL => { self.analyze_call(tree_stmt, rcc_frame) }
+            TCode::LET => { self.analyze_let(tree_stmt, rcc_frame) }
             _ => {
                 panic!("Code {:?}", tree_stmt.token.code);
             }
@@ -73,8 +73,6 @@ impl Analyzer {
     }
 
     pub fn analyze_func(&self, mtree_func: &MTree, rcc_frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
-
-
         // create new block frame (statics)
         let mut frame_func_ = AFrame::new_child(rcc_frame.clone());
 
@@ -174,7 +172,6 @@ impl Analyzer {
     }
 
     pub fn analyze_assign(&self, mtree_assign: &MTree, rcc_frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
-
         // expr on RHS
         let mtree_expr = mtree_assign.children.get(1).unwrap().deref();
         let rc_mtree_expr_ = self.analyze_expr(mtree_expr, rcc_frame.clone());
@@ -210,6 +207,7 @@ impl Analyzer {
     }
 
     pub fn analyze_write(&self, mtree_write: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
+        mtree_write.print();
         let rc_mtree_expr = mtree_write.children.get(0).unwrap();
         let rc_mtree_expr_ = self.analyze_expr(rc_mtree_expr.deref(), frame);
         Rc::new(MTree {
@@ -225,6 +223,31 @@ impl Analyzer {
             token: mtree_read.token.clone(),
             children: vec![rc_mtree_id_],
         })
+    }
+
+    fn analyze_let(&self, mtree_let: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
+        let rc_mtree_id = mtree_let.children.get(0).unwrap();
+
+        println!("\n\n\n\n\n");
+        mtree_let.print();
+
+        // LET ID ASSIGN VAL SEMICOLON
+        if mtree_let.children.len() > 1 {
+            let rc_mtree_assign = mtree_let.children.get(1).unwrap();
+            let rc_mtree_assign_ = self.analyze_assign(rc_mtree_assign, frame);
+
+            Rc::new(MTree {
+                token: mtree_let.token.clone(),
+                children: vec![rc_mtree_id.clone(), rc_mtree_assign_],
+            })
+        }
+        // LET ID SEMICOLON
+        else {
+            Rc::new(MTree {
+                token: mtree_let.token.clone(),
+                children: vec![rc_mtree_id.clone()],
+            })
+        }
     }
 
     pub fn analyze_expr(&self, mtree_expr: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
