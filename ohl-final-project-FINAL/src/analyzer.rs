@@ -122,7 +122,7 @@ impl Analyzer {
             DValue::FUNC(rc_mtree_func_.clone());
 
         // return func
-        return rc_mtree_func_;
+        rc_mtree_func_
     }
 
     pub fn analyze_if(&self, mtree_if: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
@@ -255,7 +255,7 @@ impl Analyzer {
                 // create reference into frame
                 let symbol = match frame.borrow().symbol_lookup(name) {
                     Some(symbol) => { symbol }
-                    None => { panic!("Can't find symbol for {:?}!", mtree_id.token); }
+                    None => { panic!("\nERROR: Variable {} used before declaration!\n", name); }
                 };
                 Rc::new(MTree::new( Token {
                     code: TCode::A_REF(symbol.loc.clone()),
@@ -301,6 +301,4 @@ impl Analyzer {
             panic!()
         }
     }
-
-
 }
