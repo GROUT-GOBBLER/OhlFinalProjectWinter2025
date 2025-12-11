@@ -276,7 +276,7 @@ impl Lexer {
 
         match token {
             TCode::EOI => {
-                print!("\nEOI");
+                println!("\nEOI");
             },
 
             _ => {
