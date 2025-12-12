@@ -2,9 +2,9 @@
 #![allow(dead_code)]
 #![allow(non_snake_case)]
 
+use std::rc::Rc;
 use crate::hw_assignment_3::*;
 use crate::token::*;
-use crate::value::DValue;
 use crate::mtree::*;
 
 const INDENT: usize = 2;
@@ -22,8 +22,14 @@ impl Parser {
 
     pub fn analyze(&mut self) -> MTree {
         self.indent = 0;
-        let tree = self.parse_program();
+        let mut tree = self.parse_program();
         self.expect(TCode::EOI);
+
+        let main_func = MTree {
+            token: Token::from(TCode::CALL),
+            children: vec![Rc::new(MTree::new(Token::id("main")))],
+        };
+        tree._push(main_func);
         tree
     }
 }

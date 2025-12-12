@@ -3,13 +3,15 @@ func fac(n)
     write n;
     if n < 2 [
         return 1;
-    ] else [
-        return n;
+    ]
+    else
+    [
+        return n * fac(n-1);
     ]
 ]
 
 func main()
 [
-    n = 10;
+    n = fac(3);
     write n;
 ]
