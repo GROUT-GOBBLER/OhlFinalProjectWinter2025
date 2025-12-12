@@ -514,7 +514,7 @@ fn print_help_for(command: &str) {
 }
 
 fn list_command(command: &str) {
-    let print_all_string = String::from("All commands:\n\t help \n\t print \n\t list [commands] \n\t list tokens \n\t example \n\t tokenize \n\t parse \n\t execute \n\t example");
+    let print_all_string = String::from("All commands:\n\t help \n\t print \n\t list [commands] \n\t list tokens \n\t example \n\t tokenize \n\t parse \n\t execute");
     match command {
         "commands" => {
             println!("{}", print_all_string);
