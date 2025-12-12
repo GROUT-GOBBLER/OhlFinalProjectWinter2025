@@ -115,13 +115,14 @@ fn main() {
                 // start recursive descent parsing
                 let tree = parser.analyze();
 
+                println!("------------------------PARSER----------------------------------------");
                 println!("\nMTree:");
                 tree.print();
 
                 // --------------------------------------------------------
                 // analyze tree
                 // --------------------------------------------------------
-                println!("----------------------------------------------------------------");
+                println!("------------------------ANALYZER----------------------------------------");
                 let analyzer = Analyzer::new();
                 let rc_tree_analyzed = analyzer.analyze_global(Rc::new(tree.clone()));
                 println!("\nMTree (Analyzed) 'global':\n");
@@ -130,7 +131,7 @@ fn main() {
                 // --------------------------------------------------------
                 // evaluate tree
                 // --------------------------------------------------------
-                println!("----------------------------------------------------------------");
+                println!("----------------------------EVALUATE------------------------------------");
                 println!("\nEVALUATE MTree (Analyzed) 'global' :\n");
                 let mut evaluator = Evaluator::new();
                 evaluator.evaluate(rc_tree_analyzed.deref());
@@ -166,7 +167,7 @@ fn ohl_analyzer_evaluator_sample_function() {
     // func fac(n)
     // [
     //     write n;
-    //     if n <= 2 [
+    //     if n < 2 [
     //         return 1;
     //     ] else [
     //         return n * fac(n-1);

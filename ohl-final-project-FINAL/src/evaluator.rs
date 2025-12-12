@@ -266,6 +266,9 @@ impl Evaluator {
                 _ => { panic!("Left operand of assignment must be REF!"); }
             };
 
+            // get id.
+            let mtree_id = mtree_expr.children.get(0).unwrap().deref();
+
             // get value (RHS)
             let mtree_right= mtree_expr.children.get(1).unwrap().deref();
             let value_right = self.evaluate_expr(
@@ -275,7 +278,8 @@ impl Evaluator {
             rcc_frame.borrow_mut().value_store(&loc_left, value_right.clone());
             value_right
 
-        }else {
+        }
+        else {
             panic!("Code: {:?}", code)
         };
 

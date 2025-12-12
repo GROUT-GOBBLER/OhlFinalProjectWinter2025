@@ -228,9 +228,6 @@ impl Analyzer {
     fn analyze_let(&self, mtree_let: &MTree, frame: Rc<RefCell<AFrame>>) -> Rc<MTree> {
         let rc_mtree_id = mtree_let.children.get(0).unwrap();
 
-        println!("\n\n\n\n\n");
-        mtree_let.print();
-
         // LET ID ASSIGN VAL SEMICOLON
         if mtree_let.children.len() > 1 {
             let rc_mtree_assign = mtree_let.children.get(1).unwrap();
